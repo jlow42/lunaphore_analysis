@@ -1,0 +1,71 @@
+version: '3.10'
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: docker/backend.Dockerfile
+    command: uv run uvicorn sparc_backend.app:app --host 0.0.0.0 --port 8000
+    volumes:
+      - ./backend:/app/backend
+      - ./cli:/app/cli
+      - ./configs:/app/configs
+    environment:
+      SPARC_SETTINGS_PATH: /app/configs/api.yaml
+      DATABASE_URL: postgresql+psycopg://sparc:sparc@postgres:5432/sparc
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      - postgres
+      - redis
+    ports:
+      - "8000:8000"
+
+  worker:
+    build:
+      context: .
+      dockerfile: docker/backend.Dockerfile
+    command: uv run python -m sparc_backend.worker
+    volumes:
+      - ./backend:/app/backend
+      - ./configs:/app/configs
+      - workspace-data:/workspace
+    environment:
+      SPARC_SETTINGS_PATH: /app/configs/worker.yaml
+      DATABASE_URL: postgresql+psycopg://sparc:sparc@postgres:5432/sparc
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      - postgres
+      - redis
+
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/frontend.Dockerfile
+    command: pnpm run dev -- --host 0.0.0.0 --port 3000
+    volumes:
+      - ./frontend:/app/frontend
+      - workspace-data:/workspace
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+
+  redis:
+    image: redis:7.2
+    ports:
+      - "6379:6379"
+
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: sparc
+      POSTGRES_PASSWORD: sparc
+      POSTGRES_DB: sparc
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+volumes:
+  workspace-data:
+  postgres-data:

@@ -1,0 +1,3 @@
+# Placeholder worker configuration
+logging:
+  level: INFO

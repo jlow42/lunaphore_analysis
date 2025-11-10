@@ -1,0 +1,25 @@
+{
+  "name": "sparc-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "lint": "eslint \"src/**/*.{ts,tsx,js,jsx}\"",
+    "format": "prettier --check .",
+    "test": "vitest run"
+  },
+  "engines": {
+    "node": "^20.11.0"
+  },
+  "packageManager": "pnpm@8.15.4",
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "@typescript-eslint/parser": "^6.21.0",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-react": "^7.34.1",
+    "prettier": "^3.2.5",
+    "typescript": "^5.4.2",
+    "vitest": "^1.3.1"
+  }
+}

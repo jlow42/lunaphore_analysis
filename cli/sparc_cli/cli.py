@@ -14,7 +14,9 @@ _LOGGER = logging.getLogger(__name__)
 
 
 def _build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Sparc platform command-line interface")
+    parser = argparse.ArgumentParser(
+        description="Sparc platform command-line interface"
+    )
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     run_parser = subparsers.add_parser("run", help="Submit an analysis job")
@@ -64,12 +66,18 @@ def handle_run(config_path: Path, api_url: str | None) -> int:
 
     client = ApiClient(base_url=api_url)
     try:
-        job_id = client.submit_job(run_config.payload)
+        response = client.submit_ingest(run_config)
     except ApiError as exc:
-        _LOGGER.error("Job submission failed: %s", exc)
+        _LOGGER.error("Ingest submission failed: %s", exc)
         return 2
 
-    _LOGGER.info("Job submitted successfully with id %s", job_id)
+    task_id = response.get("task_id")
+    snapshot = response.get("snapshot", {})
+    manifest_path = snapshot.get("manifest_path")
+    if manifest_path:
+        _LOGGER.info("Snapshot written to %s", manifest_path)
+    if task_id:
+        _LOGGER.info("Ingest task queued with id %s", task_id)
     return 0
 
 
@@ -80,7 +88,7 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     configure_logging(args.log_level)
-    _LOGGER.debug("CLI arguments: %%s", args)
+    _LOGGER.debug("CLI arguments: %s", args)
 
     if args.command == "run":
         return handle_run(args.config, args.api_url)

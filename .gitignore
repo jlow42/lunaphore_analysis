@@ -1,0 +1,16 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.dist/
+.env
+.venv
+.mypy_cache/
+.pytest_cache/
+.poetry-cache/
+frontend/node_modules/
+.DS_Store
+.idea/
+.vscode/
+.eggs/
+/build/
+/__pypackages__/

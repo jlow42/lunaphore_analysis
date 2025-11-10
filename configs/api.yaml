@@ -1,0 +1,3 @@
+# Placeholder API configuration
+logging:
+  level: INFO

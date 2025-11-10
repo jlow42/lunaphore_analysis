@@ -1,0 +1,52 @@
+[build-system]
+requires = ["poetry-core>=1.7.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "sparc-platform"
+version = "0.1.0"
+description = "Tooling for the Sparc analysis platform."
+authors = ["Sparc Team <dev@sparc.ai>"]
+readme = "README.md"
+packages = [
+  { include = "sparc_backend", from = "backend" },
+  { include = "sparc_cli", from = "cli" }
+]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "^0.110.0"
+uvicorn = {version = "^0.27.1", extras = ["standard"]}
+requests = "^2.31.0"
+pyyaml = "^6.0.1"
+pydantic = "^2.6.4"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.1.1"
+ruff = "^0.3.4"
+mypy = "^1.8.0"
+black = "^24.2.0"
+
+[tool.poetry.scripts]
+sparc = "sparc_cli.cli:main"
+
+[tool.black]
+line-length = 88
+target-version = ["py311"]
+
+[tool.ruff]
+line-length = 88
+select = ["E", "F", "I", "B", "UP"]
+
+[tool.ruff.isort]
+known-first-party = ["sparc_backend", "sparc_cli"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = false
+warn_unused_configs = true
+
+[tool.uv]
+default-python = "3.11"
+locked = false
+managed = ["poetry"]

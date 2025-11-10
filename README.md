@@ -1,17 +1,25 @@
 # SPARC Base Repository
 
-This is the starter repository for the SPARC (Spatial Proteomics Analysis & Review Console) project. It only contains the minimal folder structure required to begin development in Codex Cloud.
+This repository scaffolds the SPARC (Spatial Proteomics Analysis & Review Console) platform.
 
-## Folders
+## Repository Layout
 
-- `backend/` – placeholder for the FastAPI/data pipeline services.
-- `frontend/` – placeholder for the React application.
-- `cli/` – placeholder for the command line interface.
-- `configs/` – placeholder for YAML configuration presets.
-- `docs/` – placeholder for design docs and notes.
-- `docker/` – placeholder for Dockerfiles/compose setups.
-- `data_examples/` – placeholder for synthetic/sample datasets.
-- `notebooks/` – placeholder for exploratory notebooks.
-- `scripts/` – placeholder for helper scripts.
+- `backend/` – FastAPI services, task orchestration, and pipeline workers. See `backend/README.md`.
+- `frontend/` – React + TypeScript analytics console. See `frontend/README.md`.
+- `cli/` – Command-line interface entry points (`sparc run`, etc.).
+- `configs/` – Versioned YAML presets, cluster label maps, and signature matrices.
+- `docs/` – Design notes and system overview (start with `docs/system_overview.md`).
+- `docker/` – Container build and orchestration files.
+- `data_examples/` – Synthetic/sample COMET™ datasets and panels.
+- `notebooks/` – Prototyping and demo notebooks.
+- `scripts/` – Automation and helper scripts.
 
-Add your actual source code, configs, and assets as you build out the platform.
+## Getting Started
+
+1. Review `docs/system_overview.md` for requirements and architecture guidance.
+2. Choose a configuration preset from `configs/` (e.g., `fast_preview.yaml` or `publication_grade.yaml`).
+3. Implement backend services and workers to cover the pipeline endpoints described in the overview.
+4. Scaffold the frontend React application following the UX outline in the overview.
+5. Add Dockerfiles/compose definitions under `docker/` for local development and deployment.
+
+Each pipeline run must record configuration, environment, and provenance metadata to ensure reproducibility.

@@ -1,0 +1,4 @@
+marker,T_cell,Tumor_cell,Stromal_cell
+CD3,1,0,0
+EPCAM,0,1,0
+VIM,0,0,1

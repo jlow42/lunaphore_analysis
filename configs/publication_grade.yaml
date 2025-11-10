@@ -1,0 +1,147 @@
+# Publication-grade configuration prioritizing accuracy and comprehensive analytics.
+run:
+  name: publication-grade
+  seed: 42
+  output_dir: outputs/publication
+  cache_dir: cache/
+
+input:
+  ome_tiff: data_examples/sample_slide_large.ome.tiff
+  convert_to_ome_zarr: true
+  ome_zarr:
+    chunk_size: [1, 1, 512, 512]
+    compressor: blosc
+    storage_options:
+      dimension_separator: "."
+
+preprocess:
+  illumination:
+    method: basic
+    backend: gpu
+    parameters:
+      lambda_flat: 0.005
+      lambda_dark: 0.0005
+  background:
+    method: wavelet
+    parameters:
+      wavelet: db2
+      level: 3
+  autofluorescence:
+    method: spectral_unmix
+    reference_channels: ["AF488", "AF568", "AF647"]
+
+segmentation:
+  engine: instanseg
+  model: comet_cells_highres_v2
+  tile_size: 2048
+  tile_overlap: 128
+  batch_size: 4
+  use_gpu: true
+  nucleus_cytoplasm_split: true
+  postprocessing:
+    min_size: 50
+    nms_threshold: 0.3
+
+features:
+  intensity:
+    summary_stats: [mean, median, percentile_90]
+    positivity_thresholds:
+      mode: control_based
+      control_roi: control_region
+  morphology: true
+  texture:
+    enabled: true
+    markers: ["MarkerA", "MarkerB", "MarkerC"]
+
+batch:
+  harmonize:
+    method: histogram_matching
+    reference_slide: slide_A
+  integrate:
+    method: harmony
+    parameters:
+      theta: 2.0
+      lambda: 1.0
+      max_iter_harmony: 20
+
+normalization:
+  method: quantile
+  reference: global
+  arcsinh:
+    enabled: true
+    cofactor: 150
+
+reduction:
+  pca:
+    n_components: 100
+    scale: true
+  umap:
+    key: umap_harmony
+    n_neighbors: 30
+    min_dist: 0.3
+    metric: cosine
+  tsne:
+    key: tsne_harmony
+    perplexity: 50
+    n_iter: 3000
+  phate:
+    key: phate_default
+    knn: 20
+
+clustering:
+  - method: leiden
+    key: leiden_r1.5_k30
+    resolution: 1.5
+    neighbors_k: 30
+  - method: hdbscan
+    key: hdbscan_min10
+    min_cluster_size: 10
+    min_samples: 5
+  - method: gmm
+    key: gmm_k20
+    n_components: 20
+
+subclustering:
+  enabled: true
+  parents:
+    - source_key: leiden_r1.5_k30
+      clusters: ["5", "7"]
+      methods:
+        - method: leiden
+          key: leiden_sub_r1.0_k20
+          resolution: 1.0
+
+annotations:
+  cluster_labels:
+    source_key: leiden_r1.5_k30
+    mapping_csv: configs/cluster_labels.csv
+  cell_type:
+    method: signature_scoring
+    signature_matrix: configs/celltype_signatures.csv
+
+spatial:
+  graphs:
+    knn:
+      k: 30
+    radius:
+      radii: [20.0, 50.0, 100.0]
+  metrics:
+    proximity:
+      pairs:
+        - ["T_cell", "Tumor_cell"]
+      radius: 50.0
+      permutations: 100
+    morans_i:
+      features: ["MarkerA", "MarkerB", "MarkerC"]
+      radius: 50.0
+    ripley_k:
+      cell_types: ["T_cell"]
+      radii: [10.0, 25.0, 50.0, 100.0]
+
+exports:
+  anndata: true
+  spatialdata: true
+  masks: true
+  tables: [per_cell, per_patch]
+  plots: [umap, heatmap, spatial_density]
+  ui_snapshots: true

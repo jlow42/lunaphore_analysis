@@ -1,0 +1,83 @@
+# Fast preview configuration emphasizing quick turnaround on modest hardware.
+run:
+  name: fast-preview
+  seed: 1337
+  output_dir: outputs/fast_preview
+  cache_dir: cache/
+
+input:
+  ome_tiff: data_examples/sample_slide.ome.tiff
+  convert_to_ome_zarr: true
+  ome_zarr:
+    chunk_size: [1, 1, 1024, 1024]
+    compressor: zstd
+
+preprocess:
+  illumination:
+    method: basic
+    backend: cpu
+    parameters:
+      lambda_flat: 0.01
+      lambda_dark: 0.001
+  background:
+    method: percentile
+    parameters:
+      percentile: 5
+  autofluorescence:
+    method: linear_unmix
+    reference_channels: ["AF488", "AF568"]
+
+segmentation:
+  engine: instanseg
+  model: comet_cells_v1
+  tile_size: 1024
+  tile_overlap: 64
+  batch_size: 2
+  use_gpu: auto
+
+features:
+  intensity:
+    summary_stats: [mean, median]
+    positivity_thresholds:
+      mode: otsu
+  morphology: true
+  texture:
+    enabled: false
+
+batch:
+  harmonize:
+    method: quantile
+  integrate:
+    method: none
+
+normalization:
+  method: arcsinh
+  cofactor: 150
+
+reduction:
+  pca:
+    n_components: 50
+  umap:
+    key: default
+    n_neighbors: 15
+    min_dist: 0.5
+
+clustering:
+  - method: leiden
+    key: leiden_r1.0_k15
+    resolution: 1.0
+    neighbors_k: 15
+
+spatial:
+  graphs:
+    knn:
+      k: 15
+  metrics:
+    morans_i:
+      features: ["MarkerA", "MarkerB"]
+      radius: 30.0
+
+exports:
+  anndata: true
+  spatialdata: true
+  plots: [umap, heatmap]

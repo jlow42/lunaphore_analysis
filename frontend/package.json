@@ -14,9 +14,21 @@
     "node": "20.11.1"
   },
   "packageManager": "pnpm@8.15.4",
+  "dependencies": {
+    "@tanstack/react-query": "5.28.9",
+    "@vivjs/loaders": "0.13.11",
+    "@vivjs/react": "0.13.11",
+    "papaparse": "5.4.1",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-router-dom": "6.22.2"
+  },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "6.21.0",
     "@typescript-eslint/parser": "6.21.0",
+    "@types/react": "18.2.21",
+    "@types/react-dom": "18.2.7",
+    "@types/react-router-dom": "5.3.3",
     "eslint": "8.57.0",
     "eslint-config-prettier": "9.1.0",
     "eslint-plugin-react": "7.34.1",

@@ -96,6 +96,70 @@ class IngestStatusModel(BaseModel):
     updated_at: datetime
 
 
+class BackgroundMethodParameter(BaseModel):
+    """Parameter definition for background correction."""
+
+    name: str
+    label: str
+    type: str
+    default: Any | None = None
+    minimum: float | None = None
+    maximum: float | None = None
+    choices: list[Any] | None = None
+    description: str | None = None
+
+
+class BackgroundMethodConfig(BaseModel):
+    """Configuration for a background correction method."""
+
+    name: str
+    label: str
+    description: str | None = None
+    parameters: list[BackgroundMethodParameter] = Field(default_factory=list)
+
+
+class BackgroundConfigResponse(BaseModel):
+    """Available background preprocessing methods."""
+
+    methods: list[BackgroundMethodConfig]
+
+
+class BackgroundPreprocessRequest(BaseModel):
+    """Submission payload for background correction jobs."""
+
+    project_slug: str
+    ingest_record_id: int
+    method: str
+    output_name: str
+    parameters: dict[str, Any] = Field(default_factory=dict)
+    channels: list[int] | None = None
+
+
+class BackgroundPreprocessResponse(BaseModel):
+    """Response describing an enqueued background job."""
+
+    task_id: str
+    job_id: int
+    status: str
+
+
+class BackgroundPreprocessStatus(BaseModel):
+    """Status payload for background preprocessing jobs."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    method: str
+    output_name: str
+    status: str
+    progress: float
+    result_zarr_path: str | None
+    qc_metrics: dict[str, Any] | None
+    error_message: str | None
+    created_at: datetime
+    updated_at: datetime
+
+
 __all__ = [
     "ProjectLayout",
     "ProjectCreateRequest",
@@ -104,4 +168,10 @@ __all__ = [
     "IngestRequest",
     "IngestResponse",
     "IngestStatusModel",
+    "BackgroundMethodParameter",
+    "BackgroundMethodConfig",
+    "BackgroundConfigResponse",
+    "BackgroundPreprocessRequest",
+    "BackgroundPreprocessResponse",
+    "BackgroundPreprocessStatus",
 ]

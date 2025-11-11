@@ -49,20 +49,28 @@ def ingest_image(*, ingest_record_id: int) -> dict[str, Any]:
             return {"status": "missing"}
 
         project = record.project
-        project_paths = PROJECT_MANAGER.initialize(project.slug)
+        project_paths = PROJECT_MANAGER.resolve(project.slug)
         metadata: dict[str, Any]
         panel_mapping: dict[str, str] = {}
         try:
-            if record.panel_csv_path:
-                panel_mapping = load_panel_mapping(Path(record.panel_csv_path))
-            metadata = extract_metadata(Path(record.source_path), panel_mapping)
+            try:
+                source_path = PROJECT_MANAGER.resolve_project_path(
+                    project.slug, Path(record.source_path)
+                )
+                panel_csv_path: Path | None = None
+                if record.panel_csv_path:
+                    panel_csv_path = PROJECT_MANAGER.resolve_project_path(
+                        project.slug, Path(record.panel_csv_path)
+                    )
+                    panel_mapping = load_panel_mapping(panel_csv_path)
+            except ValueError as exc:
+                raise IngestError(str(exc)) from exc
+            metadata = extract_metadata(source_path, panel_mapping)
             zarr_path: Path | None = None
             if record.convert_to_zarr:
-                zarr_dir = (
-                    project_paths.imagery / f"{Path(record.source_path).stem}.zarr"
-                )
+                zarr_dir = project_paths.imagery / f"{source_path.stem}.zarr"
                 zarr_path = convert_to_ome_zarr(
-                    Path(record.source_path),
+                    source_path,
                     zarr_dir,
                     metadata["channels"],
                     metadata["scale"],

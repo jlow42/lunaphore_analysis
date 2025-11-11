@@ -58,7 +58,10 @@ def create_project(
     session: SessionDep,
 ) -> ProjectResponse:
     existing = session.scalar(select(Project).where(Project.slug == payload.slug))
-    paths = project_manager.initialize(payload.slug)
+    try:
+        paths = project_manager.initialize(payload.slug)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
     if existing is None:
         project = Project(
             slug=payload.slug,
@@ -126,10 +129,22 @@ def submit_ingest(
     if project is None:
         raise HTTPException(status_code=404, detail="Project not found")
 
-    project_paths = project_manager.initialize(project.slug)
-    input_paths = [payload.image_path]
-    if payload.panel_csv_path:
-        input_paths.append(payload.panel_csv_path)
+    try:
+        project_paths = project_manager.initialize(project.slug)
+        image_path = project_manager.resolve_project_path(
+            project.slug, payload.image_path
+        )
+        panel_csv_path = (
+            project_manager.resolve_project_path(project.slug, payload.panel_csv_path)
+            if payload.panel_csv_path
+            else None
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    input_paths = [image_path]
+    if panel_csv_path:
+        input_paths.append(panel_csv_path)
     snapshot_record = snapshot_manager.capture(
         project_paths, payload.run_name, input_paths
     )
@@ -149,8 +164,8 @@ def submit_ingest(
     ingest_record = IngestRecord(
         project_id=project.id,
         snapshot_id=snapshot.id,
-        source_path=str(payload.image_path),
-        panel_csv_path=str(payload.panel_csv_path) if payload.panel_csv_path else None,
+        source_path=str(image_path),
+        panel_csv_path=str(panel_csv_path) if panel_csv_path else None,
         convert_to_zarr=payload.convert_to_zarr,
         request_metadata=dict(payload.metadata),
         status="queued",

@@ -1,5 +1,5 @@
 [build-system]
-requires = ["poetry-core>=1.7.0"]
+requires = ["poetry-core==1.8.2"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
@@ -14,18 +14,36 @@ packages = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.11"
-fastapi = "^0.110.0"
-uvicorn = {version = "^0.27.1", extras = ["standard"]}
-requests = "^2.31.0"
-pyyaml = "^6.0.1"
-pydantic = "^2.6.4"
+python = "3.11.8"
+aicsimageio = "4.13.3"
+celery = "5.3.6"
+dask = {version = "2024.2.1", extras = ["array"]}
+fastapi = "0.110.1"
+gitpython = "3.1.42"
+numcodecs = "0.12.1"
+numpy = "1.26.4"
+ome-zarr = "0.9.0"
+pandas = "2.2.1"
+psycopg = {version = "3.1.18", extras = ["binary"]}
+pydantic = "2.6.4"
+pydantic-settings = "2.2.1"
+pyyaml = "6.0.1"
+redis = "5.0.3"
+requests = "2.31.0"
+sqlalchemy = "2.0.28"
+tifffile = "2024.2.12"
+typing-extensions = "4.10.0"
+uvicorn = {version = "0.27.1", extras = ["standard"]}
+zarr = "2.16.1"
 
 [tool.poetry.group.dev.dependencies]
-pytest = "^8.1.1"
-ruff = "^0.3.4"
-mypy = "^1.8.0"
-black = "^24.2.0"
+black = "24.3.0"
+mypy = "1.8.0"
+pre-commit = "3.6.2"
+pytest = "8.1.1"
+ruff = "0.3.5"
+types-pyyaml = "6.0.12.12"
+types-requests = "2.31.0.20240311"
 
 [tool.poetry.scripts]
 sparc = "sparc_cli.cli:main"
@@ -35,18 +53,18 @@ line-length = 88
 target-version = ["py311"]
 
 [tool.ruff]
-line-length = 88
-select = ["E", "F", "I", "B", "UP"]
+line-length = 100
 
-[tool.ruff.isort]
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "ASYNC"]
+ignore = ["E203"]
+
+[tool.ruff.lint.isort]
 known-first-party = ["sparc_backend", "sparc_cli"]
 
 [tool.mypy]
 python_version = "3.11"
+plugins = ["pydantic.mypy"]
 strict = false
 warn_unused_configs = true
 
-[tool.uv]
-default-python = "3.11"
-locked = false
-managed = ["poetry"]

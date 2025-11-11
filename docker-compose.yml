@@ -10,10 +10,12 @@ services:
       - ./backend:/app/backend
       - ./cli:/app/cli
       - ./configs:/app/configs
+      - project-data:/workspace/projects
     environment:
       SPARC_SETTINGS_PATH: /app/configs/api.yaml
-      DATABASE_URL: postgresql+psycopg://sparc:sparc@postgres:5432/sparc
-      REDIS_URL: redis://redis:6379/0
+      SPARC_DATABASE_URL: postgresql+psycopg://sparc:sparc@postgres:5432/sparc
+      SPARC_REDIS_URL: redis://redis:6379/0
+      SPARC_PROJECTS_ROOT: /workspace/projects
     depends_on:
       - postgres
       - redis
@@ -28,11 +30,12 @@ services:
     volumes:
       - ./backend:/app/backend
       - ./configs:/app/configs
-      - workspace-data:/workspace
+      - project-data:/workspace/projects
     environment:
       SPARC_SETTINGS_PATH: /app/configs/worker.yaml
-      DATABASE_URL: postgresql+psycopg://sparc:sparc@postgres:5432/sparc
-      REDIS_URL: redis://redis:6379/0
+      SPARC_DATABASE_URL: postgresql+psycopg://sparc:sparc@postgres:5432/sparc
+      SPARC_REDIS_URL: redis://redis:6379/0
+      SPARC_PROJECTS_ROOT: /workspace/projects
     depends_on:
       - postgres
       - redis
@@ -44,7 +47,7 @@ services:
     command: pnpm run dev -- --host 0.0.0.0 --port 3000
     volumes:
       - ./frontend:/app/frontend
-      - workspace-data:/workspace
+      - project-data:/workspace/projects:ro
     ports:
       - "3000:3000"
     depends_on:
@@ -67,5 +70,5 @@ services:
       - postgres-data:/var/lib/postgresql/data
 
 volumes:
-  workspace-data:
+  project-data:
   postgres-data:

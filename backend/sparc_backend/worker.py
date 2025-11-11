@@ -1,22 +1,15 @@
-"""Background worker placeholder implementation."""
+"""Celery worker entry point."""
 
 from __future__ import annotations
 
-import asyncio
-import logging
-
-logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s - %(message)s")
-LOGGER = logging.getLogger(__name__)
+from .tasks import celery_app
 
 
-async def main() -> None:
-    """Run the worker loop."""
+def main() -> None:
+    """Launch the Celery worker with sane defaults."""
 
-    LOGGER.info("Worker started")
-    while True:  # pragma: no cover - long-running worker loop
-        LOGGER.debug("Waiting for work...")
-        await asyncio.sleep(10)
+    celery_app.worker_main(["worker", "--loglevel=INFO"])
 
 
 if __name__ == "__main__":  # pragma: no cover
-    asyncio.run(main())
+    main()

@@ -1,0 +1,53 @@
+background:
+  methods:
+    - name: "basic"
+      label: "BaSiC"
+      description: "Rolling-ball background estimation approximating BaSiC illumination correction."
+      parameters:
+        - name: "rolling_ball_radius"
+          label: "Rolling Ball Radius"
+          type: "number"
+          default: 50
+          minimum: 5
+          maximum: 200
+          description: "Radius (in pixels) of the rolling ball window."
+    - name: "polynomial"
+      label: "Polynomial"
+      description: "Low-order polynomial surface fit used as background estimate."
+      parameters:
+        - name: "order"
+          label: "Polynomial Order"
+          type: "number"
+          default: 2
+          minimum: 1
+          maximum: 5
+          description: "Order of the 2D polynomial fitted to the illumination field."
+    - name: "morphological"
+      label: "Morphological"
+      description: "Morphological opening to approximate background illumination."
+      parameters:
+        - name: "opening_radius"
+          label: "Structuring Element Radius"
+          type: "number"
+          default: 15
+          minimum: 1
+          maximum: 128
+          description: "Radius of the disk structuring element (in pixels)."
+    - name: "adaptive"
+      label: "Adaptive"
+      description: "Adaptive threshold based background estimation with local neighborhoods."
+      parameters:
+        - name: "block_size"
+          label: "Block Size"
+          type: "number"
+          default: 35
+          minimum: 3
+          maximum: 255
+          description: "Window size for the adaptive threshold (odd value)."
+        - name: "offset"
+          label: "Offset"
+          type: "number"
+          default: 0
+          minimum: -500
+          maximum: 500
+          description: "Constant offset subtracted from the adaptive background estimate."

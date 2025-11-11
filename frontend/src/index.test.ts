@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { placeholder } from './index';
+import { App } from './index';
 
-describe('placeholder', () => {
-  it('returns the project name', () => {
-    expect(placeholder()).toBe('sparc');
+describe('App export', () => {
+  it('exposes the root application component', () => {
+    expect(App).toBeDefined();
   });
 });
